@@ -142,15 +142,11 @@ class Predictor():
 
         avg_values = self.df[cols].values
 
-        for status_idx, status in enumerate(avg_values):
+        for status in avg_values:
             date = status[0]
             name = status[1]
             print('Inserting ' + name +"'s average personality scores to database...")
-            avg_personality = {}
-            for col_idx, col in enumerate(status):
-                col_name = cols[col_idx]
-                avg_personality[col_name] = col
-
+            avg_personality = {cols[col_idx]: col for col_idx, col in enumerate(status)}
             self.fb_statuses.update_one(
                         {'name': name},
                         {'$set': {
@@ -162,18 +158,26 @@ class Predictor():
             print('Done!')
 
     def my_network_json(self):
-        entries = list(self.fb_statuses.find({'friends_dict': {'$exists': False}, 'my_personality': {'$exists': False}}, {
-            'name': 1,
-            'url': 1,
-            'datetime': 1,
-            'status_predictions': 1,
-            'avg_status_predictions': 1,
-            'profile_pic_url': 1,
-            'pred_percentiles': 1,
-            'radar_plot_url': 1,
-            'compare_radar_plot_url': 1,
-            '_id': 0}))
-        return entries
+        return list(
+            self.fb_statuses.find(
+                {
+                    'friends_dict': {'$exists': False},
+                    'my_personality': {'$exists': False},
+                },
+                {
+                    'name': 1,
+                    'url': 1,
+                    'datetime': 1,
+                    'status_predictions': 1,
+                    'avg_status_predictions': 1,
+                    'profile_pic_url': 1,
+                    'pred_percentiles': 1,
+                    'radar_plot_url': 1,
+                    'compare_radar_plot_url': 1,
+                    '_id': 0,
+                },
+            )
+        )
 
     def add_profile_pic(self):
 
@@ -347,12 +351,15 @@ class Predictor():
                 }
 
     def my_personality_json(self):
-        entry = self.fb_statuses.find_one({'my_personality': {'$exists': True}}, {
-            'datetime': 1,
-            'actual_personality_scores': 1,
-            'radar_plot_url': 1,
-            '_id': 0})
-        return entry
+        return self.fb_statuses.find_one(
+            {'my_personality': {'$exists': True}},
+            {
+                'datetime': 1,
+                'actual_personality_scores': 1,
+                'radar_plot_url': 1,
+                '_id': 0,
+            },
+        )
 
     def compare_json(self, person):
         pred_dict = person['pred_percentiles']

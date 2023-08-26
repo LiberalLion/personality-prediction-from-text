@@ -25,10 +25,7 @@ class FBWebScraper():
         self.set_browser(browser)
 
         person_dict = self.fb_statuses.find_one({'friends_dict': {'$exists': True}})
-        if person_dict == None:
-            self.friends_dict = {}
-        else:
-            self.friends_dict = person_dict['friends_dict']
+        self.friends_dict = {} if person_dict is None else person_dict['friends_dict']
 
     # Sets the browser to scrape with
     def set_browser(self, browser):
@@ -109,7 +106,7 @@ class FBWebScraper():
                     ):
                         # Add friend and profile url to dictionary
                         self.friends_dict[url] = profile.text
-                        print('Adding ' + profile.text + ' to friends dictionary...')
+                        print(f'Adding {profile.text} to friends dictionary...')
 
             print('Creating friends dictionary... \nCurrent friend count: ' +  str(len(self.friends_dict.items())) + ' friends.')
 
@@ -144,11 +141,7 @@ class FBWebScraper():
             person_dict = self.fb_statuses.find_one({"url": url})
 
         #     if person not in DB
-            if person_dict == None:
-                statuses_dict = {}
-            else:
-                statuses_dict = person_dict['statuses']
-
+            statuses_dict = {} if person_dict is None else person_dict['statuses']
             self.browser.get(url)
 
             time.sleep(self.scroll_time)
@@ -194,17 +187,20 @@ class FBWebScraper():
 
                             # Status sometimes split in two p elements. Merge two paragraphs
                             if len(para_elements) > 0:
-                                text = ''
-                                for para_element in para_elements:
-                                    text += para_element.text + ' '
-
-                            print('Date: ' + post_time + '\n' + 'Status: ' + text + '\n')
+                                text = ''.join(f'{para_element.text} ' for para_element in para_elements)
+                            print(f'Date: {post_time}' + '\n' + 'Status: ' + text + '\n')
 
                             # Add status to dictionary
                             statuses_dict[post_time] = text
                     except:
                         print('Elements Not Found')
-                print("Scraping " + name + "'s statuses... \n" + 'Current status count: ' +  str(len(statuses_dict.items())) + ' statuses.')
+                print(
+                    f"Scraping {name}"
+                    + "'s statuses... \n"
+                    + 'Current status count: '
+                    + str(len(statuses_dict.items()))
+                    + ' statuses.'
+                )
 
                 time.sleep(self.scroll_time)
 
@@ -231,7 +227,12 @@ class FBWebScraper():
                 },
             upsert=True
             )
-            print("Finished creating " + name + "'s statuses dictionary! \nStatus count: " + str(len(statuses_dict.items())) + " statuses.")
+            print(
+                f"Finished creating {name}"
+                + "'s statuses dictionary! \nStatus count: "
+                + str(len(statuses_dict.items()))
+                + " statuses."
+            )
 
 if __name__ == '__main__':
     with open('fb_login_creds.yaml', 'r') as stream:

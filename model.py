@@ -22,10 +22,7 @@ class Model():
 
     def predict(self, X, regression=True):
         X = self.tfidf.transform(X)
-        if regression:
-            return self.rfr.predict(X)
-        else:
-            return self.rfc.predict(X)
+        return self.rfr.predict(X) if regression else self.rfc.predict(X)
 
     def predict_proba(self, X, regression=False):
         X = self.tfidf.transform(X)
@@ -42,12 +39,12 @@ if __name__ == '__main__':
         dp = DataPrep()
         X_regression, y_regression = dp.prep_data('status', trait, regression=True, model_comparison=False)
         X_categorical, y_categorical = dp.prep_data('status', trait, regression=False, model_comparison=False)
-        print('Fitting trait ' + trait + ' regression model...')
+        print(f'Fitting trait {trait} regression model...')
         model.fit(X_regression, y_regression, regression=True)
         print('Done!')
-        print('Fitting trait ' + trait + ' categorical model...')
+        print(f'Fitting trait {trait} categorical model...')
         model.fit(X_categorical, y_categorical, regression=False)
         print('Done!')
-        with open('static/' + trait + '_model.pkl', 'wb') as f:
+        with open(f'static/{trait}_model.pkl', 'wb') as f:
             # Write the model to a file.
             pickle.dump(model, f)

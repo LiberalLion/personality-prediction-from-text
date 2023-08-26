@@ -103,31 +103,36 @@ class ModelEvaluator():
                 y_pred = model.predict(self.X_test)
                 y_true = self.y_test
                 mse = -np.mean(cross_validate(model, self.X_test, self.y_test, scoring='neg_mean_squared_error', cv=10)['test_score'])
-                print('MSE: ' + str(mse) + '\n')
+                print(f'MSE: {str(mse)}' + '\n')
             else:
                 accuracy_score = np.mean(cross_validate(model, self.X_test, self.y_test, cv=10)['test_score'])
                 accuracy_scores.append(accuracy_score)
-                print('Accuracy score: ' + str(accuracy_score) + '\n')
+                print(f'Accuracy score: {str(accuracy_score)}' + '\n')
 
                 # y_pred = model.predict(self.X_test).round()
                 # y_true = self.y_test
                 # f_score = f1_score(y_true, y_pred)
                 f_score = np.mean(cross_validate(model, self.X_test, self.y_test, scoring='f1', cv=10)['test_score'])
                 f1_scores.append(f_score)
-                print('F1 score: ' + str(f_score) + '\n')
+                print(f'F1 score: {str(f_score)}' + '\n')
 
-        if regression:
-            pass
-        else:
+        if not regression:
             best_accuracy_score = max(accuracy_scores)
             best_accuracy_model = models[accuracy_scores.index(best_accuracy_score)]
             print(
-                'Best Accuracy score: ' + str(best_accuracy_score) + '\n' +
-                'Model: ' + best_accuracy_model + '\n' + '\n'
+                f'Best Accuracy score: {str(best_accuracy_score)}'
+                + '\n'
+                + 'Model: '
+                + best_accuracy_model
+                + '\n'
+                + '\n'
             )
             best_f1_score = max(f1_scores)
             best_f1_model = models[f1_scores.index(best_f1_score)]
             print(
-                'Best F1 score: ' + str(best_f1_score) + '\n' +
-                'Model: ' + best_f1_model + '\n'
+                f'Best F1 score: {str(best_f1_score)}'
+                + '\n'
+                + 'Model: '
+                + best_f1_model
+                + '\n'
             )

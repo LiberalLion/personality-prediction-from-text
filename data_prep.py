@@ -63,7 +63,6 @@ class DataPrep():
         tfidf = TfidfVectorizer(stop_words='english', strip_accents='ascii')
 
         if type == 'essay':
-
             # result = tfidf.fit_transform(df_essay['TEXT']).todense()
             #
             # scaler = MinMaxScaler()
@@ -72,14 +71,12 @@ class DataPrep():
             # X = np.nan_to_num(np.column_stack((result, )))
 
             # If need data to compare models
-            if model_comparison:
-                X = tfidf.fit_transform(df_essay['TEXT'])
-            # Data for fitting production model
-            else:
-                X = df_essay['TEXT']
-
-            y_column = self.trait_cat_dict[trait]
-            y = df_essay[y_column]
+            X = (
+                tfidf.fit_transform(df_essay['TEXT'])
+                if model_comparison
+                else df_essay['TEXT']
+            )
+            y = df_essay[self.trait_cat_dict[trait]]
 
         elif type == 'status':
             # Include other features with tfidf vector
@@ -95,17 +92,16 @@ class DataPrep():
             # result = tfidf.fit_transform(df_status['STATUS']).todense()
 
             # If need data to compare models
-            if model_comparison:
-                X = tfidf.fit_transform(df_status['STATUS'])
-                # X = np.nan_to_num(np.column_stack((result, df_status[other_features_columns])))
-            # Data to fit production model
-            else:
-                X = df_status['STATUS']
-
-            if regression:
-                y_column = self.trait_score_dict[trait]
-            else:
-                y_column = self.trait_cat_dict[trait]
+            X = (
+                tfidf.fit_transform(df_status['STATUS'])
+                if model_comparison
+                else df_status['STATUS']
+            )
+            y_column = (
+                self.trait_score_dict[trait]
+                if regression
+                else self.trait_cat_dict[trait]
+            )
             y = df_status[y_column]
 
         return X, y

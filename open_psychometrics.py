@@ -99,17 +99,10 @@ class Big5():
 				perc = stats.percentileofscore(self.df[key], score)
 				perc_dict['N_perc'] = perc
 
-		result_dict = {}
-		result_dict['percentiles'] = perc_dict
-		result_dict['scores'] = score_dict
-		
-		return(result_dict)
+		return {'percentiles': perc_dict, 'scores': score_dict}
 
 	def calc_score(self, df):
-	    score = []
-	    for row in df.values:
-	        score.append(row.mean())
-	    return score
+		return [row.mean() for row in df.values]
 
 	def prep_df(self):
 		O_columns = ['O1', 'O2', 'O3', 'O4', 'O5', 'O6', 'O7', 'O8', 'O9', 'O10']
